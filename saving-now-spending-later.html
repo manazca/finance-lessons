@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Saving now, spending later</title>
+<meta name="description" content="How money grows, how future payments are valued today, and why the order of returns matters.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%88%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F4F5FE; --card:#FFFFFF; --ink:#1C1A3A; --muted:#5B5A78; --line:#DFE1F2;
+  --hero:#241F5C; --hero-ink:#FFFFFF; --hero-muted:#C9C6F2;
+  --mint:#0E9F74; --mint-soft:#D4F4E8; --mint-bright:#3DDBB0;
+  --sun:#D98300; --sun-soft:#FFEDCC; --sun-bright:#FFC145;
+  --coral:#E0443B; --coral-soft:#FDE2E0;
+  --violet:#6D5BD0; --violet-soft:#E6E2FB;
+  --focus:#2A55D6;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#12112A; --card:#1C1B3C; --ink:#ECEBFA; --muted:#A8A6CC; --line:#2F2D57;
+    --hero:#1A1647; --hero-ink:#FFFFFF; --hero-muted:#B9B5EE;
+    --mint:#3DDBB0; --mint-soft:#163F3A; --mint-bright:#3DDBB0;
+    --sun:#FFC145; --sun-soft:#43341A; --sun-bright:#FFC145;
+    --coral:#FF7A70; --coral-soft:#4A2228;
+    --violet:#A99BFF; --violet-soft:#2E2963; --focus:#9DB4FF;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#12112A; --card:#1C1B3C; --ink:#ECEBFA; --muted:#A8A6CC; --line:#2F2D57;
+  --hero:#1A1647; --hero-ink:#FFFFFF; --hero-muted:#B9B5EE;
+  --mint:#3DDBB0; --mint-soft:#163F3A; --mint-bright:#3DDBB0;
+  --sun:#FFC145; --sun-soft:#43341A; --sun-bright:#FFC145;
+  --coral:#FF7A70; --coral-soft:#4A2228;
+  --violet:#A99BFF; --violet-soft:#2E2963; --focus:#9DB4FF;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:"Atkinson Hyperlegible", "Segoe UI", Arial, sans-serif;
+  font-size:1.0625rem; line-height:1.6;
+}
+.wrap{max-width:48rem; margin:0 auto; padding:0 1.25rem}
+h1,h2,h3,.display{font-family:"Bricolage Grotesque", "Segoe UI", Arial, sans-serif; line-height:1.1; margin:0}
+h2{font-size:clamp(1.65rem,4.5vw,2.25rem); font-weight:800}
+h3{font-size:1.25rem; font-weight:600; margin-top:1.75rem}
+p{margin:0.75rem 0}
+strong{font-weight:700}
+.num{font-variant-numeric:tabular-nums}
+:focus-visible{outline:3px solid var(--focus); outline-offset:3px; border-radius:4px}
+
+/* ---------- Hero ---------- */
+.hero{background:var(--hero); color:var(--hero-ink); padding:3rem 0 2.25rem; overflow:hidden}
+.hero h1{font-size:clamp(2.4rem,7.5vw,4.2rem); font-weight:800; letter-spacing:-0.015em}
+.hook{margin-top:1.5rem; font-family:"Bricolage Grotesque", sans-serif; font-weight:600; font-size:clamp(1.35rem,4vw,1.9rem); line-height:1.25}
+.hook .in{color:var(--mint-bright)}
+.hook .out{color:var(--sun-bright)}
+.hook .how{display:block; margin-top:0.35rem; font-size:1.15em}
+.hero .sub{color:var(--hero-muted); max-width:34rem; margin-top:1rem}
+.timeline{width:100%; height:auto; display:block; margin-top:1.75rem}
+.timeline text{fill:var(--hero-muted); font-family:"Atkinson Hyperlegible", sans-serif; font-size:13px}
+.tl-bar{transform-box:fill-box}
+.tl-up{transform-origin:bottom}
+.tl-down{transform-origin:top}
+.anim .tl-bar{transform:scaleY(0); transition:transform 420ms cubic-bezier(.2,.8,.2,1)}
+.anim.go .tl-bar{transform:scaleY(1)}
+@media (prefers-reduced-motion: reduce){ .anim .tl-bar{transform:none; transition:none} }
+.tl-legend{display:flex; gap:1.25rem; flex-wrap:wrap; color:var(--hero-muted); font-size:0.95rem; margin-top:0.5rem}
+.sw{display:inline-block; width:0.85rem; height:0.85rem; border-radius:3px; vertical-align:-0.1rem; margin-right:0.35rem}
+
+/* ---------- Sections ---------- */
+section.step{padding-top:3.25rem}
+.step-head{display:flex; align-items:center; gap:0.85rem}
+.badge{
+  flex:none; width:2.5rem; height:2.5rem; border-radius:50%;
+  display:grid; place-items:center; background:var(--ink); color:var(--paper);
+  font-family:"Bricolage Grotesque", sans-serif; font-weight:800; font-size:1.2rem;
+}
+.card{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:1.25rem; margin-top:1.25rem}
+
+/* Two moves */
+.moves{display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1.25rem}
+@media (max-width:620px){ .moves{grid-template-columns:1fr} }
+.move{border-radius:16px; padding:1.1rem 1.2rem}
+.move h3{margin-top:0; font-size:1.3rem}
+.move-f{background:var(--mint-soft)}
+.move-b{background:var(--sun-soft)}
+.move .rule{font-family:"Bricolage Grotesque", sans-serif; font-weight:800; font-size:1.5rem; margin:0.4rem 0}
+.move ul{padding-left:1.1rem; margin:0.5rem 0 0}
+.move li{margin:0.3rem 0}
+
+.tm-row{display:flex; align-items:baseline; gap:0.25rem 1rem; flex-wrap:wrap}
+.tm-row label{font-weight:700; order:1}
+.tm-row .bigval{order:2; margin-left:auto}
+.tm-row input[type=range]{order:3; flex:1 1 100%; min-height:2.25rem; accent-color:var(--violet)}
+.bigval{font-family:"Bricolage Grotesque", sans-serif; font-weight:800; font-size:1.9rem; text-align:right}
+.tm-out{display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-top:1rem}
+@media (max-width:560px){ .tm-out{grid-template-columns:1fr} }
+.tile{border-radius:12px; padding:0.8rem 1rem}
+.tile .lbl{font-size:0.92rem; color:var(--muted)}
+.tile .val{font-family:"Bricolage Grotesque", sans-serif; font-weight:800; font-size:1.65rem}
+.t-mint{background:var(--mint-soft)}
+.t-sun{background:var(--sun-soft)}
+.t-plain{border:2px solid var(--line)}
+.t-short .val{color:var(--coral)}
+.note{border-left:4px solid var(--violet); background:var(--violet-soft); padding:0.75rem 1rem; border-radius:0 12px 12px 0; margin-top:1.25rem}
+
+/* Alex */
+.person{display:flex; gap:1rem; align-items:flex-start; margin-top:1.25rem}
+.avatar{flex:none; width:3.25rem; height:3.25rem; border-radius:50%; display:grid; place-items:center; font-family:"Bricolage Grotesque", sans-serif; font-weight:800; font-size:1.35rem; color:var(--card)}
+.av-alex{background:var(--violet)}
+.av-jordan{background:var(--coral)}
+.av-riley{background:var(--mint)}
+.facts{padding-left:1.1rem; margin:0}
+.facts li{margin:0.3rem 0}
+.results{display:grid; grid-template-columns:repeat(3,1fr); gap:0.75rem; margin-top:1.1rem}
+@media (max-width:620px){ .results{grid-template-columns:1fr} }
+.split{display:flex; height:2.4rem; border-radius:10px; overflow:hidden; margin-top:0.5rem; background:var(--line)}
+.split div{display:flex; align-items:center; padding:0 0.6rem; font-weight:700; font-size:0.9rem; white-space:nowrap; overflow:hidden; transition:width 200ms}
+@media (prefers-reduced-motion: reduce){ .split div{transition:none} }
+.split .dep{background:var(--violet); color:var(--card)}
+.split .grow{background:var(--mint); color:#06261E}
+.chart{width:100%; height:auto; display:block; margin-top:0.75rem}
+.chart text{font-family:"Atkinson Hyperlegible", sans-serif; fill:var(--muted); font-size:13px}
+@media (max-width:560px){ .chart text{font-size:20px} .timeline text{font-size:20px} }
+.legend{display:flex; gap:1.25rem; flex-wrap:wrap; font-size:0.95rem; margin-top:0.5rem}
+.caption{color:var(--muted); font-size:0.98rem}
+.try{margin-top:1.25rem; padding-top:1rem; border-top:1px dashed var(--line)}
+.try ol{padding-left:1.2rem; margin:0.5rem 0 0}
+.try li{margin:0.4rem 0}
+
+details{margin-top:1rem; background:var(--card); border:1px solid var(--line); border-radius:16px}
+summary{cursor:pointer; padding:0.9rem 1.25rem; font-weight:700}
+details .inner{padding:0 1.25rem 1.25rem}
+.tablebox{overflow-x:auto; max-height:22rem; overflow-y:auto; border:1px solid var(--line); border-radius:10px}
+table{border-collapse:collapse; width:100%; font-variant-numeric:tabular-nums; font-size:0.95rem}
+th,td{padding:0.4rem 0.7rem; text-align:right; white-space:nowrap; border-bottom:1px solid var(--line)}
+th{position:sticky; top:0; background:var(--card); color:var(--muted)}
+th:first-child,td:first-child{text-align:left}
+td.neg{color:var(--coral); font-weight:700}
+
+/* Excel */
+code{font-family:Consolas, "Courier New", monospace; font-size:0.95em; background:var(--paper); padding:0.1rem 0.35rem; border-radius:5px}
+.formula{display:block; padding:0.55rem 0.8rem; margin:0.6rem 0 0.2rem; overflow-x:auto; white-space:nowrap; border:1px solid var(--line)}
+.gives{margin-top:0; color:var(--muted)}
+dl.args{margin:0.5rem 0 0; display:grid; grid-template-columns:auto 1fr; gap:0.35rem 1rem}
+dl.args dt{font-family:Consolas, "Courier New", monospace; font-weight:700}
+dl.args dd{margin:0}
+@media (max-width:480px){ dl.args{grid-template-columns:1fr} dl.args dd{margin-bottom:0.4rem} }
+.sheet{overflow-x:auto; margin-top:0.75rem; border:1px solid var(--line); border-radius:10px}
+.sheet table{font-size:0.92rem}
+.sheet th{background:var(--paper); text-align:center; position:static}
+.sheet td{text-align:left}
+.sheet td.rn{background:var(--paper); color:var(--muted); text-align:center; width:2.5rem}
+.sheet td.f{font-family:Consolas, "Courier New", monospace; color:var(--violet)}
+.sheet td.v{text-align:right}
+.sheet tr.sum td{font-weight:700}
+.trip{padding-left:1.1rem}
+.trip li{margin:0.45rem 0}
+
+/* Part 2 */
+.duo{display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-top:1rem}
+@media (max-width:560px){ .duo{grid-template-columns:1fr} }
+.who{display:flex; gap:0.75rem; align-items:center; border-radius:12px; padding:0.75rem}
+.who .avatar{width:2.6rem; height:2.6rem; font-size:1.1rem}
+.who-j{background:var(--coral-soft)}
+.who-r{background:var(--mint-soft)}
+.toggle{display:inline-flex; border:1px solid var(--line); border-radius:12px; overflow:hidden; margin-top:0.25rem}
+.toggle button{font:inherit; font-weight:700; padding:0.55rem 1rem; border:0; background:var(--card); color:var(--ink); cursor:pointer; min-height:2.75rem}
+.toggle button[aria-pressed="true"]{background:var(--ink); color:var(--paper)}
+.ends{display:grid; grid-template-columns:repeat(3,1fr); gap:0.75rem; margin-top:1rem}
+@media (max-width:620px){ .ends{grid-template-columns:1fr} }
+.ends .sub{font-size:0.9rem; color:var(--muted)}
+.punch{
+  margin-top:1.5rem; border-radius:16px; padding:1.25rem 1.35rem;
+  background:var(--coral-soft); border:2px solid var(--coral);
+}
+.punch p{margin:0.35rem 0; font-size:1.1rem}
+
+.question{margin-top:3.5rem; border-radius:20px; padding:1.75rem 1.5rem; background:var(--hero); color:var(--hero-ink)}
+.question h2{color:var(--hero-ink)}
+.question p{font-size:1.2rem; margin-bottom:0}
+.small{font-size:0.92rem; color:var(--muted); margin-top:2.5rem; padding-bottom:3rem}
+.meet{display:flex; gap:1rem; align-items:flex-start; margin-top:2rem; max-width:38rem}
+.meet p{margin:0.45rem 0}
+.hero-h{font-size:clamp(1.35rem,3.5vw,1.65rem); font-weight:800; color:var(--hero-ink)}
+.puzzle-h{margin-top:2.25rem}
+.hero .hook{margin-top:0.6rem; font-size:clamp(1.25rem,3.6vw,1.65rem)}
+.hook2{font-family:"Bricolage Grotesque", sans-serif; font-weight:600; font-size:clamp(1.15rem,3.2vw,1.4rem); margin-top:0.4rem; color:var(--hero-ink)}
+.tl-cap{color:var(--hero-muted); font-size:0.95rem; margin-top:0.5rem; max-width:38rem}
+.intro{padding-top:2.25rem}
+.h-mid{font-size:1.45rem; font-weight:800}
+.qs{padding-left:1.4rem; margin:0.75rem 0 0; font-size:1.1rem}
+.qs li{margin:0.45rem 0; padding-left:0.25rem}
+.gloss{display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin:0.75rem 0 0}
+.gloss div{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:0.7rem 0.9rem}
+.gloss dt{font-family:"Bricolage Grotesque", sans-serif; font-weight:800}
+.gloss dd{margin:0.15rem 0 0}
+@media (max-width:560px){ .gloss{grid-template-columns:1fr} }
+.howto{color:var(--muted); font-size:0.98rem; margin:0.4rem 0 0.75rem}
+.card > .howto:first-child{margin-top:0}
+.learned{padding-left:1.3rem; margin:0}
+.learned li{margin:0.55rem 0}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <h1>Saving now, spending later</h1>
+    <p class="sub">How money grows over time, how to value payments that happen in the future, and why the order of good and bad years matters.</p>
+
+    <div class="meet">
+      <span class="avatar av-alex" aria-hidden="true">A</span>
+      <div>
+        <h2 class="hero-h">Meet Alex</h2>
+        <p>Alex gets a first job at 25 and saves for 40 years, until retiring at 65. At the end of each of those 40 years, Alex puts <strong>$5,000</strong> into investments: 40 deposits in total, the first at 26 and the last at 65.</p>
+        <p>In retirement, Alex plans to take out <strong>$60,000</strong> at the end of every year to live on, for 20 years, from age 66 to 85.</p>
+        <p>Alex's investments earn <strong>6% a year</strong>: every $100 in the account grows by $6 each year.</p>
+      </div>
+    </div>
+
+    <h2 class="hero-h puzzle-h">The puzzle</h2>
+    <p class="hook">Alex puts in <span class="in num">$200,000</span> in total but plans to take out <span class="out num">$1,200,000</span>.</p>
+    <p class="hook2">Is that possible? Where would the other $1,000,000 come from?</p>
+
+    <svg class="timeline anim" id="timeline" viewBox="0 0 720 210" role="img" aria-label="Timeline: 40 yearly deposits of $5,000 from age 26 to 65, then 20 yearly withdrawals of $60,000 from age 66 to 85, drawn to scale"></svg>
+    <p class="tl-cap">Alex's plan at a glance. Each small green bar is one $5,000 deposit. Each tall yellow bar is one $60,000 withdrawal. The bars are drawn to scale. Deposits happen at the end of each year, so the first is at 26 and the last at 65.</p>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="intro" aria-labelledby="qs">
+    <div class="card qcard">
+      <h2 id="qs" class="h-mid">This page answers three questions</h2>
+      <ol class="qs">
+        <li>How much will Alex's savings be worth at 65?</li>
+        <li>How much does Alex need at 65 to pay for all 20 withdrawals?</li>
+        <li>What could go wrong if returns go up and down instead of staying at 6%?</li>
+      </ol>
+    </div>
+    <p><strong>Why it matters.</strong> Laura's case has the same basic shape: money is invested first and paid out later. Learn the tools on Alex, then apply them yourself to Laura.</p>
+    <h3>Words you need</h3>
+    <dl class="gloss">
+      <div><dt>Return</dt><dd>What your investments earn in a year, as a percentage.</dd></div>
+      <div><dt>Deposit</dt><dd>Money you put into the account.</dd></div>
+      <div><dt>Withdrawal</dt><dd>Money you take out.</dd></div>
+      <div><dt>Balance</dt><dd>How much is in the account at a given moment.</dd></div>
+    </dl>
+    <p><strong>How this page works.</strong> Section 1 gives you two tools. Section 2 uses them to answer questions 1 and 2. Section 3 shows how to do it in Excel. Section 4 answers question 3.</p>
+  </section>
+
+  <!-- 1. Two moves -->
+  <section class="step" aria-labelledby="s1">
+    <div class="step-head"><span class="badge">1</span><h2 id="s1">Two moves</h2></div>
+    <p>Before answering the questions, you need two tools: moving money forward in time, and moving it back. Here they are at 6% a year.</p>
+    <div class="moves">
+      <div class="move move-f">
+        <h3>⏩ Fast-forward</h3>
+        <p class="rule">× 1.06 each year</p>
+        <ul>
+          <li>$1,000 today becomes <strong class="num">$1,060</strong> in one year, and <strong class="num">$1,123.60</strong> in two.</li>
+          <li>Alex's first $5,000 goes in at the end of Alex's first working year, at age 26. It grows for 39 years, until 65, and becomes <strong class="num">$48,518</strong>. The last $5,000 goes in on the day Alex retires, so it does not grow at all.</li>
+        </ul>
+      </div>
+      <div class="move move-b">
+        <h3>⏪ Rewind</h3>
+        <p class="rule">÷ 1.06 each year</p>
+        <ul>
+          <li>To have $60,000 one year from now, you need <strong class="num">$56,604</strong> today, because $56,604 grows to $60,000 in a year.</li>
+          <li>$60,000 two years away needs <strong class="num">$53,400</strong> today. Twenty years away: only <strong class="num">$18,708</strong>.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="howto">Drag the slider to choose a number of years. The green box shows what $1,000 today grows to. The yellow box shows what $1,000 received in the future is worth today.</p>
+      <div class="tm-row">
+        <label for="years">Years</label>
+        <input id="years" type="range" min="0" max="40" step="1" value="10">
+        <output id="yearsOut" class="bigval num" for="years">10</output>
+      </div>
+      <div class="tm-out" aria-live="polite">
+        <div class="tile t-mint"><div class="lbl" id="ffLbl">$1,000 today, fast-forwarded 10 years</div><div class="val num" id="ffVal">$0</div></div>
+        <div class="tile t-sun"><div class="lbl" id="rwLbl">$1,000 in 10 years, rewound to today</div><div class="val num" id="rwVal">$0</div></div>
+      </div>
+    </div>
+
+    <div class="note">
+      <p style="margin:0">A series of payments is just many single amounts. Move each one to the same date, then add them up. Finance calls a series of equal payments at regular intervals an <em>annuity</em>. You do not need the word here, but you will see it if you search for help.</p>
+    </div>
+  </section>
+
+  <!-- 2. Alex -->
+  <section class="step" aria-labelledby="s2">
+    <div class="step-head"><span class="badge">2</span><h2 id="s2">Alex's plan</h2></div>
+    <p>This section answers questions 1 and 2. A quick reminder of the plan: 40 deposits of $5,000, one at the end of each of Alex's 40 working years, then 20 withdrawals of $60,000, one at the end of each year of retirement.</p>
+
+    <div class="card">
+      <p class="howto">Drag the slider to choose a yearly return. It starts at 6%, the return in Alex's story. Every number and both charts below update.</p>
+      <div class="tm-row">
+        <label for="rate">Yearly return</label>
+        <input id="rate" type="range" min="0" max="10" step="0.5" value="6">
+        <output id="rateOut" class="bigval num" for="rate">6%</output>
+      </div>
+
+      <div class="results" aria-live="polite">
+        <div class="tile t-mint"><div class="lbl">Savings at 65, after 40 years of saving</div><div class="val num" id="fvOut">$0</div></div>
+        <div class="tile t-sun"><div class="lbl">Needed at 65</div><div class="val num" id="pvOut">$0</div></div>
+        <div class="tile t-plain" id="gapBox"><div class="lbl" id="gapLbl">Left over</div><div class="val num" id="gapOut">$0</div></div>
+      </div>
+
+      <h3>Where the savings come from</h3>
+      <p class="howto">The bar is Alex's savings at 65, split into the money Alex put in and the growth that money earned.</p>
+      <div class="split" id="split" role="img" aria-label="Savings split between deposits and growth">
+        <div class="dep" id="splitDep"></div><div class="grow" id="splitGrow"></div>
+      </div>
+      <div class="legend">
+        <span><span class="sw" style="background:var(--violet)"></span>Alex's deposits: <strong class="num">$200,000</strong></span>
+        <span><span class="sw" style="background:var(--mint)"></span>Growth: <strong class="num" id="growOut">$0</strong></span>
+      </div>
+
+      <h3>What each withdrawal needs at 65</h3>
+      <p class="howto">Each bar is one year of retirement. The full height is the $60,000 Alex takes out that year. The lower part is how much Alex needs at 65 to pay for it. Later withdrawals need less, because that money has longer to grow.</p>
+      <svg class="chart" id="bars" viewBox="0 0 640 250" role="img" aria-label="Bar chart: each $60,000 withdrawal and the amount it needs at age 65"></svg>
+      <div class="legend">
+        <span><span class="sw" style="background:var(--sun-soft);outline:1px solid var(--sun)"></span>$60,000 taken out</span>
+        <span><span class="sw" style="background:var(--sun)"></span>needed at 65 for it</span>
+      </div>
+      <p class="caption" id="barCaption"></p>
+
+      <div class="try">
+        <strong>Try this</strong>
+        <ol>
+          <li>Set the return to 0%. Why does "Needed at 65" become exactly $1,200,000?</li>
+          <li>Move from 6% to 5%. "Savings at 65" and "Needed at 65" both change. Which one changes more, and why?</li>
+        </ol>
+      </div>
+    </div>
+
+    <details>
+      <summary>Check it year by year</summary>
+      <div class="inner">
+        <p>A shortcut is only trustworthy if you can rebuild it the long way. The saving years: each year the balance grows, then Alex adds $5,000.</p>
+        <div class="tablebox"><table id="saveTable"><thead><tr><th>Year</th><th>Age at year end</th><th>Start</th><th>Growth</th><th>Deposit</th><th>End</th></tr></thead><tbody></tbody></table></div>
+        <p style="margin-top:1.25rem">The retirement years: start with exactly the "Needed at 65" amount. Each year it grows, then Alex takes out $60,000. Watch the last row.</p>
+        <div class="tablebox"><table id="spendTable"><thead><tr><th>Year</th><th>Age at year end</th><th>Start</th><th>Growth</th><th>Withdrawal</th><th>End</th></tr></thead><tbody></tbody></table></div>
+        <p>The balance reaches $0 after the last withdrawal. That is what "enough" means: not a dollar short, not a dollar extra.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- 3. Excel -->
+  <section class="step" aria-labelledby="s3">
+    <div class="step-head"><span class="badge">3</span><h2 id="s3">Doing it in Excel</h2></div>
+    <p>This section shows how to get the same answers yourself in Excel: the long way, one row per year, and the short way, with two functions.</p>
+
+    <div class="card">
+      <h3 style="margin-top:0">The long way: one row per year</h3>
+      <p>Works for any pattern of money in and out, even irregular amounts.</p>
+      <code class="formula">End = Start × (1 + rate) + deposit − withdrawal</code>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">The shortcuts: FV and PV</h3>
+      <p>They only work when the payment and the return are the same every period.</p>
+      <code class="formula">=FV(rate, nper, pmt, [pv], [type])</code>
+      <code class="formula">=PV(rate, nper, pmt, [fv], [type])</code>
+      <dl class="args">
+        <dt>rate</dt><dd>The return per period, for example 6%.</dd>
+        <dt>nper</dt><dd>The number of periods, here the number of yearly payments.</dd>
+        <dt>pmt</dt><dd>The equal payment each period. Excel's answer comes out with the opposite sign, so enter the payment with a minus sign to get a positive answer.</dd>
+        <dt>[pv] / [fv]</dt><dd>Optional. A single amount at the start (for FV) or at the end (for PV). Leave it out or use 0 if there is none.</dd>
+        <dt>[type]</dt><dd>Optional. Leave it out or use 0 for payments at the <em>end</em> of each period. Use 1 for payments at the <em>start</em>.</dd>
+      </dl>
+
+      <h3>Examples at 6%</h3>
+      <p>Excel shows cents. Everywhere else, this page rounds to the nearest dollar.</p>
+      <code class="formula">=FV(6%, 40, -5000)</code>
+      <p class="gives">gives 773,809.83: Alex's savings at 65. Here 40 is the number of deposits. Excel assumes each one comes at the end of the year, so the first grows 39 years and the last does not grow, exactly as in Section 1.</p>
+      <code class="formula">=PV(6%, 20, -60000)</code>
+      <p class="gives">gives 688,195.27: what Alex needs at 65.</p>
+      <code class="formula">=FV(6%, 10, 0, -1000)</code>
+      <p class="gives">gives 1,790.85: one amount of $1,000 left to grow for 10 years.</p>
+      <code class="formula">=PV(6%, 20, 0, -60000)</code>
+      <p class="gives">gives 18,708.28: the last withdrawal, 20 years away, rewound to 65.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Prove PV is not magic</h3>
+      <p>Build this yourself. Rewind each withdrawal separately, add them up, and compare with the shortcut.</p>
+      <div class="sheet">
+        <table>
+          <thead><tr><th></th><th>A</th><th>B</th><th>C</th></tr></thead>
+          <tbody>
+            <tr><td class="rn">1</td><td>Year</td><td>Withdrawal</td><td>Needed at 65</td></tr>
+            <tr><td class="rn">2</td><td>1</td><td>60,000</td><td class="f">=B2/(1+6%)^A2</td></tr>
+            <tr><td class="rn">3</td><td>2</td><td>60,000</td><td class="f">=B3/(1+6%)^A3</td></tr>
+            <tr><td class="rn">⋮</td><td>⋮</td><td>⋮</td><td>⋮</td></tr>
+            <tr><td class="rn">21</td><td>20</td><td>60,000</td><td class="f">=B21/(1+6%)^A21</td></tr>
+            <tr class="sum"><td class="rn">22</td><td>Total</td><td></td><td class="f">=SUM(C2:C21)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Row 2 shows 56,603.77, row 3 shows 53,399.79 and row 21 shows 18,708.28 (Excel may show more decimals). The total in C22 is <strong class="num">688,195.27</strong>, the same as <code>=PV(6%, 20, -60000)</code>. PV is simply this column, added up in one step.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Three things that trip people up</h3>
+      <ul class="trip">
+        <li><strong>The minus sign.</strong> Excel gives the answer the opposite sign of the payment. Enter payments with a minus sign and the answer comes out positive.</li>
+        <li><strong>Start or end?</strong> The <code>type</code> input decides whether payments happen at the start or the end of each period. The same payments give different answers. Check which one your problem needs.</li>
+        <li><strong>Which date is "now"?</strong> With type 0, PV gives the value one period before the first payment. With type 1, it gives the value on the day of the first payment. Always know which date your number belongs to.</li>
+      </ul>
+      <p>Build the long way and the shortcut. If they disagree, find out why before you trust either one.</p>
+    </div>
+  </section>
+
+  <!-- 4. Order -->
+  <section class="step" aria-labelledby="s4">
+    <div class="step-head"><span class="badge">4</span><h2 id="s4">Same returns, different order</h2></div>
+    <p>This section answers question 3. So far the return was the same every year. Real returns go up and down, and in some years investments lose money. Meet Jordan and Riley.</p>
+    <div class="duo">
+      <div class="who who-j"><span class="avatar av-jordan" aria-hidden="true">J</span><div><strong>Jordan</strong><br>two bad years first</div></div>
+      <div class="who who-r"><span class="avatar av-riley" aria-hidden="true">R</span><div><strong>Riley</strong><br>two bad years last</div></div>
+    </div>
+    <ul class="facts" style="margin-top:1rem">
+      <li>Each retires with <strong>$700,000</strong>, a little more than the $688,195 Alex needs at a steady 6%.</li>
+      <li>Each takes out <strong>$60,000 at the end of every year for 20 years</strong>, like Alex.</li>
+      <li>Their investments earn the same 20 yearly returns, which grow money just as much as a steady 6% a year would. Only the order is different.</li>
+    </ul>
+
+    <div class="card">
+      <p class="howto">Each line shows how much money is left in the account at the end of each year of retirement. Use the buttons to switch the withdrawals on and off.</p>
+      <div class="toggle" role="group" aria-label="Show balances">
+        <button type="button" id="btnWith" aria-pressed="true">With withdrawals</button>
+        <button type="button" id="btnWithout" aria-pressed="false">Without withdrawals</button>
+      </div>
+      <svg class="chart" id="lines" viewBox="0 0 640 330" role="img" aria-label="Line chart of Jordan's, Riley's and a steady 6% balance over 20 years"></svg>
+      <div class="legend">
+        <span><span class="sw" style="background:var(--coral)"></span>Jordan</span>
+        <span><span class="sw" style="background:var(--mint)"></span>Riley</span>
+        <span><span class="sw" style="background:var(--violet)"></span>Steady 6% every year</span>
+      </div>
+      <div class="ends" aria-live="polite">
+        <div class="tile t-plain"><div class="lbl">Jordan after 20 years</div><div class="val num" id="endJ">$0</div><div class="sub" id="endJsub"></div></div>
+        <div class="tile t-plain"><div class="lbl">Riley after 20 years</div><div class="val num" id="endR">$0</div><div class="sub" id="endRsub"></div></div>
+        <div class="tile t-plain"><div class="lbl">Steady 6% after 20 years</div><div class="val num" id="endS">$0</div><div class="sub" id="endSsub"></div></div>
+      </div>
+    </div>
+
+    <details>
+      <summary>See the 20 returns</summary>
+      <div class="inner">
+        <div class="tablebox"><table id="retTable"><thead><tr><th>Year</th><th>Jordan</th><th>Riley</th></tr></thead><tbody></tbody></table></div>
+        <p>The same 20 numbers in both columns, in reverse order. Without withdrawals, they turn $700,000 into the same amount as a steady 6% a year.</p>
+      </div>
+    </details>
+
+    <div class="punch">
+      <p><strong>The plan worked on paper.</strong> At a steady 6%, $700,000 is enough and leaves $37,859 at the end.</p>
+      <p>Jordan has the same money, the same withdrawals and the same total growth. Jordan runs out in year 12.</p>
+    </div>
+
+    <h3>Why order matters only when money comes out</h3>
+    <p>Without withdrawals, Jordan and Riley end with exactly the same amount. Multiplying the same numbers in a different order gives the same answer, just as 2 × 3 = 3 × 2.</p>
+    <p>With withdrawals, Jordan's bad years come first. Every withdrawal after that comes out of a much smaller balance. Money taken out after a loss is gone for good: it is not there to grow when the good years arrive. Riley's bad years come at the very end, when only two withdrawals are left.</p>
+    <p>A return typed into a spreadsheet is a smooth version of reality. Real returns arrive one year at a time, in an order nobody knows in advance.</p>
+  </section>
+
+  <section class="step" aria-labelledby="sL">
+    <div class="step-head"><span class="badge" aria-hidden="true">✓</span><h2 id="sL">What you learned</h2></div>
+    <div class="card">
+      <ol class="learned">
+        <li><strong>Savings at 65.</strong> At 6%, Alex's $200,000 of deposits grows to $773,810. Most of that, $573,810, is growth.</li>
+        <li><strong>Needed at 65.</strong> Twenty withdrawals of $60,000 add up to $1,200,000, but Alex needs only $688,195 at 65. That money keeps earning while it waits to be spent: another $511,805 during retirement.</li>
+        <li><strong>What could go wrong.</strong> A steady return is a simplification. With the same total growth in a different order, a plan that works on paper can run out of money.</li>
+      </ol>
+      <p><strong>The puzzle's answer:</strong> yes, at 6% the plan works. The missing $1,000,000 comes from growth, before and during retirement, and Alex still has $85,615 to spare at 65.</p>
+    </div>
+  </section>
+
+  <section class="question" aria-labelledby="s5">
+    <h2 id="s5">Take this back to Laura</h2>
+    <p>Your Excel model for Laura uses the same return every year. If her returns arrived like Jordan's, which parts of your answer would change, and which would not?</p>
+  </section>
+
+  <p class="small">To keep the examples simple, every amount stays the same each year: no inflation, no pay raises, no taxes, no investment fees and no government pensions.</p>
+</main>
+
+<script>
+(function(){
+  "use strict";
+  function fmt(x){
+    var r = Math.round(x);
+    if (r === 0) return "$0";
+    return (r < 0 ? "−$" : "$") + Math.abs(r).toLocaleString("en-US");
+  }
+  var svgNS = "http://www.w3.org/2000/svg";
+  function el(name, attrs, text){
+    var e = document.createElementNS(svgNS, name);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (text !== undefined) e.textContent = text;
+    return e;
+  }
+  function clear(svg){ while (svg.firstChild) svg.removeChild(svg.firstChild); }
+
+  /* ----- constants ----- */
+  var DEP = 5000, NDEP = 40, WD = 60000, NWD = 20, START_AGE = 25, RET_AGE = 65;
+  function fv(r, n, p){ return r === 0 ? p * n : p * (Math.pow(1 + r, n) - 1) / r; }
+  function pv(r, n, p){ return r === 0 ? p * n : p * (1 - Math.pow(1 + r, -n)) / r; }
+
+  /* ----- hero timeline ----- */
+  (function(){
+    var svg = document.getElementById("timeline");
+    var W = 720, L = 10, R = 10, axisY = 70;
+    var n = NDEP + NWD, slot = (W - L - R) / n, bw = Math.max(slot * 0.7, 2);
+    var downH = 132, upH = downH * DEP / WD; /* bars drawn to scale: $5,000 vs $60,000 */
+    svg.appendChild(el("line", {x1:L, x2:W - R, y1:axisY, y2:axisY, stroke:"var(--hero-muted)", "stroke-width":1.5}));
+    for (var i = 0; i < n; i++){
+      var x = L + i * slot + (slot - bw) / 2, bar;
+      if (i < NDEP){
+        bar = el("rect", {x:x, y:axisY - upH, width:bw, height:upH, rx:1.5, fill:"var(--mint-bright)", "class":"tl-bar tl-up"});
+      } else {
+        bar = el("rect", {x:x, y:axisY, width:bw, height:downH, rx:1.5, fill:"var(--sun-bright)", "class":"tl-bar tl-down"});
+      }
+      bar.style.transitionDelay = (i * 22) + "ms";
+      svg.appendChild(bar);
+    }
+    var xAt = function(k){ return L + k * slot; };
+    svg.appendChild(el("text", {x:xAt(0), y:axisY + 22, "text-anchor":"start"}, "Starts work at 25"));
+    svg.appendChild(el("text", {x:xAt(NDEP), y:axisY - 52, "text-anchor":"middle"}, "65"));
+    svg.appendChild(el("line", {x1:xAt(NDEP), x2:xAt(NDEP), y1:axisY - 44, y2:axisY + 6, stroke:"var(--hero-muted)", "stroke-dasharray":"3 3"}));
+    svg.appendChild(el("text", {x:xAt(n), y:axisY - 10, "text-anchor":"end"}, "85"));
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ svg.classList.add("go"); }); });
+  })();
+
+  /* ----- two moves: time machine ----- */
+  var yIn = document.getElementById("years");
+  function updateTM(){
+    var n = parseInt(yIn.value, 10);
+    var yrs = n === 1 ? "1 year" : n + " years";
+    document.getElementById("yearsOut").textContent = n;
+    document.getElementById("ffLbl").textContent = "$1,000 today, fast-forwarded " + yrs + " at 6%";
+    document.getElementById("rwLbl").textContent = "$1,000 in " + yrs + ", rewound to today at 6%";
+    document.getElementById("ffVal").textContent = fmt(1000 * Math.pow(1.06, n));
+    document.getElementById("rwVal").textContent = fmt(1000 / Math.pow(1.06, n));
+  }
+  yIn.addEventListener("input", updateTM);
+  updateTM();
+
+  /* ----- Alex ----- */
+  var rateIn = document.getElementById("rate");
+
+  function drawBars(r){
+    var svg = document.getElementById("bars");
+    clear(svg);
+    var W = 640, H = 250, L = 66, R = 8, T = 12, B = 50;
+    var plotW = W - L - R, plotH = H - T - B, max = WD;
+    [0, 30000, 60000].forEach(function(v){
+      var y = T + plotH - (v / max) * plotH;
+      svg.appendChild(el("line", {x1:L, x2:W - R, y1:y, y2:y, stroke:"var(--line)", "stroke-width":1}));
+      svg.appendChild(el("text", {x:L - 8, y:y + 5, "text-anchor":"end"}, "$" + (v / 1000) + "k"));
+    });
+    var slot = plotW / NWD, bw = slot * 0.72;
+    for (var t = 1; t <= NWD; t++){
+      var x = L + (t - 1) * slot + (slot - bw) / 2;
+      var full = plotH, h = (WD / Math.pow(1 + r, t) / max) * plotH;
+      svg.appendChild(el("rect", {x:x, y:T, width:bw, height:full, rx:3, fill:"var(--sun-soft)", stroke:"var(--sun)", "stroke-width":0.75}));
+      svg.appendChild(el("rect", {x:x, y:T + plotH - h, width:bw, height:h, rx:3, fill:"var(--sun)"}));
+      if (t === 1 || t % 5 === 0){
+        svg.appendChild(el("text", {x:x + bw / 2, y:H - B + 22, "text-anchor":"middle"}, String(RET_AGE + t)));
+      }
+    }
+    svg.appendChild(el("text", {x:L + plotW / 2, y:H - 4, "text-anchor":"middle"}, "Age when the money is taken out"));
+  }
+
+  function fillTables(r, needed){
+    var rows = "", bal = 0, t, g, end;
+    for (t = 1; t <= NDEP; t++){
+      g = bal * r; end = bal + g + DEP;
+      rows += "<tr><td>" + t + "</td><td>" + (START_AGE + t) + "</td><td>" + fmt(bal) + "</td><td>" + fmt(g) + "</td><td>" + fmt(DEP) + "</td><td>" + fmt(end) + "</td></tr>";
+      bal = end;
+    }
+    document.querySelector("#saveTable tbody").innerHTML = rows;
+    rows = ""; bal = needed;
+    for (t = 1; t <= NWD; t++){
+      g = bal * r; end = bal + g - WD;
+      if (Math.abs(end) < 0.5) end = 0;
+      rows += "<tr><td>" + t + "</td><td>" + (RET_AGE + t) + "</td><td>" + fmt(bal) + "</td><td>" + fmt(g) + "</td><td>" + fmt(-WD) + "</td><td>" + fmt(end) + "</td></tr>";
+      bal = end;
+    }
+    document.querySelector("#spendTable tbody").innerHTML = rows;
+  }
+
+  function updateAlex(){
+    var pct = parseFloat(rateIn.value), r = pct / 100;
+    document.getElementById("rateOut").textContent = (pct % 1 === 0 ? pct.toFixed(0) : pct.toFixed(1)) + "%";
+    var s = fv(r, NDEP, DEP), need = pv(r, NWD, WD), gap = s - need;
+    document.getElementById("fvOut").textContent = fmt(s);
+    document.getElementById("pvOut").textContent = fmt(need);
+    document.getElementById("gapLbl").textContent = gap >= 0 ? "Left over" : "Short by";
+    document.getElementById("gapOut").textContent = fmt(Math.abs(gap));
+    document.getElementById("gapBox").classList.toggle("t-short", gap < 0);
+
+    var deposits = DEP * NDEP, growth = s - deposits;
+    var depPct = deposits / s * 100;
+    var d = document.getElementById("splitDep"), gEl = document.getElementById("splitGrow");
+    d.style.width = depPct + "%"; gEl.style.width = (100 - depPct) + "%";
+    d.textContent = depPct >= 12 ? Math.round(depPct) + "%" : "";
+    gEl.textContent = (100 - depPct) >= 12 ? Math.round(100 - depPct) + "%" : "";
+    document.getElementById("growOut").textContent = fmt(growth);
+
+    var last = WD / Math.pow(1 + r, NWD);
+    document.getElementById("barCaption").textContent = r === 0
+      ? "At 0%, money does not grow while it waits, so each withdrawal needs the full $60,000: 20 × $60,000 = $1,200,000."
+      : "The last withdrawal, at 85, needs only " + fmt(last) + " at 65, because that money keeps growing for 20 years before it is spent. Add up all 20 \"needed at 65\" bars and you get " + fmt(need) + ".";
+    drawBars(r);
+    fillTables(r, need);
+  }
+  rateIn.addEventListener("input", updateAlex);
+  updateAlex();
+
+  /* ----- Jordan and Riley ----- */
+  var RJ = [-0.25, -0.10, 0.08, 0.11, 0.06, 0.12, 0.11, 0.06, 0.14, 0.13, 0.15, 0.16, 0.07, 0.05, 0.08, 0.04, 0.12, 0.03, 0.06, 0.07];
+  var RR = RJ.slice().reverse();
+  var RS = RJ.map(function(){ return 0.06; });
+  var S0 = 700000, W2 = 60000, withW = true;
+
+  function path(rets, w){
+    var b = S0, out = [b], ranOut = 0;
+    for (var i = 0; i < rets.length; i++){
+      if (b <= 0){ out.push(0); continue; }
+      b = b * (1 + rets[i]) - w;
+      if (b < 0 && !ranOut){ ranOut = i + 1; b = 0; }
+      out.push(b);
+    }
+    return {pts: out, ranOut: ranOut};
+  }
+
+  var rows = "";
+  for (var i = 0; i < 20; i++){
+    var pj = Math.round(RJ[i] * 100), pr = Math.round(RR[i] * 100);
+    var cj = pj < 0 ? " class='neg'" : "", cr = pr < 0 ? " class='neg'" : "";
+    rows += "<tr><td>" + (i + 1) + "</td><td" + cj + ">" + (pj < 0 ? "−" + (-pj) : "+" + pj) + "%</td><td" + cr + ">" + (pr < 0 ? "−" + (-pr) : "+" + pr) + "%</td></tr>";
+  }
+  document.querySelector("#retTable tbody").innerHTML = rows;
+
+  function drawLines(){
+    var w = withW ? W2 : 0;
+    var J = path(RJ, w), Rl = path(RR, w), S = path(RS, w);
+    var svg = document.getElementById("lines");
+    clear(svg);
+    var W = 640, H = 330, L = 88, R = 14, T = 14, B = 50;
+    var plotW = W - L - R, plotH = H - T - B;
+    var maxV = withW ? 800000 : 2400000, step = withW ? 200000 : 600000;
+    for (var v = 0; v <= maxV; v += step){
+      var y = T + plotH - (v / maxV) * plotH;
+      svg.appendChild(el("line", {x1:L, x2:W - R, y1:y, y2:y, stroke:"var(--line)", "stroke-width":1}));
+      var lab = v >= 1000000 ? "$" + (v / 1000000).toFixed(1) + "M" : "$" + (v / 1000) + "k";
+      svg.appendChild(el("text", {x:L - 8, y:y + 5, "text-anchor":"end"}, lab));
+    }
+    for (var t = 0; t <= 20; t += 5){
+      svg.appendChild(el("text", {x:L + (t / 20) * plotW, y:H - B + 22, "text-anchor":"middle"}, String(t)));
+    }
+    svg.appendChild(el("text", {x:L + plotW / 2, y:H - 4, "text-anchor":"middle"}, "Years into retirement"));
+    function xy(val, t){ return [L + (t / 20) * plotW, T + plotH - (Math.max(val, 0) / maxV) * plotH]; }
+    function line(p, color, dash, dots){
+      var d = p.map(function(val, t){ var c = xy(val, t); return (t === 0 ? "M" : "L") + c[0].toFixed(1) + " " + c[1].toFixed(1); }).join(" ");
+      var attrs = {d:d, fill:"none", stroke:color, "stroke-width":3.5, "stroke-linejoin":"round", "stroke-linecap":"round"};
+      if (dash) attrs["stroke-dasharray"] = "7 6";
+      svg.appendChild(el("path", attrs));
+      if (dots) p.forEach(function(val, t){ var c = xy(val, t); svg.appendChild(el("circle", {cx:c[0], cy:c[1], r:3.4, fill:color})); });
+    }
+    line(S.pts, "var(--violet)", true, false);
+    line(Rl.pts, "var(--mint)", false, true);
+    line(J.pts, "var(--coral)", false, true);
+    if (J.ranOut){
+      var c = xy(0, J.ranOut);
+      svg.appendChild(el("circle", {cx:c[0], cy:c[1], r:8, fill:"none", stroke:"var(--coral)", "stroke-width":2.5}));
+      svg.appendChild(el("text", {x:c[0], y:c[1] - 16, "text-anchor":"middle", style:"fill:var(--coral);font-weight:700"}, "Runs out"));
+    }
+    document.getElementById("endJ").textContent = fmt(J.pts[20]);
+    document.getElementById("endR").textContent = fmt(Rl.pts[20]);
+    document.getElementById("endS").textContent = fmt(S.pts[20]);
+    document.getElementById("endJsub").textContent = J.ranOut ? "ran out in year " + J.ranOut : "";
+    document.getElementById("endRsub").textContent = withW ? "never ran out" : "";
+    document.getElementById("endSsub").textContent = withW ? "the plan on paper" : "";
+  }
+
+  var bW = document.getElementById("btnWith"), bWo = document.getElementById("btnWithout");
+  function setMode(m){
+    withW = m;
+    bW.setAttribute("aria-pressed", String(m));
+    bWo.setAttribute("aria-pressed", String(!m));
+    drawLines();
+  }
+  bW.addEventListener("click", function(){ setMode(true); });
+  bWo.addEventListener("click", function(){ setMode(false); });
+  drawLines();
+})();
+</script>
+</body>
+</html>
